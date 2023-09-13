@@ -1,42 +1,56 @@
-from parse_cookie import parse_cookie
+import unittest
 
-def test_parse_cookie():
-	cookie_str = "name=John; age=30; city=New York"
-	result = parse_cookie(cookie_str)
-	assert result == {'name': 'John', 'age': '30', 'city': 'New York'}
+from main import parse_cookie
 
-	cookie_str = ""
-	result = parse_cookie(cookie_str)
-	assert result == {}
 
-	cookie_str = "  name = John ; age = 30  ;  city = New York  "
-	result = parse_cookie(cookie_str)
-	assert result == {'name': 'John', 'age': '30', 'city': 'New York'}
+class TestParseCookie(unittest.TestCase):
 
-	cookie_str = "name=John; age=; city=New York"
-	result = parse_cookie(cookie_str)
-	assert result == {'name': 'John', 'age': '', 'city': 'New York'}
+    def test_empty_cookie(self):
+        cookie_string = ""
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {})
 
-	cookie_str = "name=John; age=30; city= "
-	result = parse_cookie(cookie_str)
-	assert result == {'name': 'John', 'age': '30', 'city': ''}
+    def test_simple_cookie(self):
+        cookie_string = "name=value"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value"})
 
-	cookie_str = ";;;"
-	result = parse_cookie(cookie_str)
-	assert result == {}
+    def test_cookie_with_expires(self):
+        cookie_string = "name=value; expires=Thu, 01-Jan-2023 12:00:00 GMT"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "expires": "Thu, 01-Jan-2023 12:00:00 GMT"})
 
-	cookie_str = "name= ; age= ; city= "
-	result = parse_cookie(cookie_str)
-	assert result == {'name': '', 'age': '', 'city': ''}
+    def test_cookie_with_max_age(self):
+        cookie_string = "name=value; max-age=3600"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "max-age": 3600})
 
-	cookie_str = "=John; age=30; city=New York"
-	result = parse_cookie(cookie_str)
-	assert result == {'': 'John', 'age': '30', 'city': 'New York'}
+    def test_cookie_with_domain(self):
+        cookie_string = "name=value; domain=example.com"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "domain": "example.com"})
 
-	cookie_str = "nameJohn; age=30; city=New York"
-	result = parse_cookie(cookie_str)
-	assert result == {'age': '30', 'city': 'New York'}
+    def test_cookie_with_path(self):
+        cookie_string = "name=value; path=/"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "path": "/"})
 
-	cookie_str = "John; age=30; city=New York"
-	result = parse_cookie(cookie_str)
-	assert result == {'age': '30', 'city': 'New York'}
+    def test_cookie_with_secure(self):
+        cookie_string = "name=value; secure"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "secure": True})
+
+    def test_cookie_with_httponly(self):
+        cookie_string = "name=value; httponly"
+        result = parse_cookie(cookie_string)
+        self.assertEqual(result, {"name": "value", "httponly": True})
+
+    def test_cookie_with_invalid_expires(self):
+        cookie_string = "name=value; expires=INVALID"
+        with self.assertRaises(ValueError):
+            parse_cookie(cookie_string)
+
+    def test_cookie_with_invalid_max_age(self):
+        cookie_string = "name=value; max-age=INVALID"
+        with self.assertRaises(ValueError):
+            parse_cookie(cookie_string)
