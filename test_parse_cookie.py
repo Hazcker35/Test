@@ -1,8 +1,8 @@
 import unittest
 from main import parse_cookie
 
-class TestParseCookie(unittest.TestCase):
 
+class TestParseCookie(unittest.TestCase):
     def test_empty_cookie(self):
         cookie_string = ""
         result = parse_cookie(cookie_string)
@@ -16,7 +16,11 @@ class TestParseCookie(unittest.TestCase):
     def test_cookie_with_expires(self):
         cookie_string = "name=value; expires=Thu, 01 Jan 2023 12:00:00 GMT"
         result = parse_cookie(cookie_string)
-        self.assertEqual(result, {"name": "value", "expires": "Thu, 01 Jan 2023 12:00:00 GMT"})
+        self.assertEqual(result,
+                         {
+                             "name": "value",
+                             "expires": "Thu, 01 Jan 2023 12:00:00 GMT"
+                         })
 
     def test_cookie_with_max_age(self):
         cookie_string = "name=value; max-age=3600"
@@ -47,7 +51,6 @@ class TestParseCookie(unittest.TestCase):
         cookie_string = "name=value; expires=INVALID"
         result = parse_cookie(cookie_string)
         self.assertEqual(result, {"name": "value", "expires": "INVALID"})
-
 
     def test_cookie_with_invalid_max_age(self):
         cookie_string = "name=value; max-age=INVALID"
