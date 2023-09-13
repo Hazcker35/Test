@@ -15,8 +15,8 @@ def parse(request_string: str) -> dict:
     headers = {}
 
     for header in request_lines[1:]:
-      header_name, header_value = header.split(":", 1)
-      headers[header_name.strip()] = header_value.strip()
+        header_name, header_value = header.split(":", 1)
+        headers[header_name.strip()] = header_value.strip()
 
     return {
       "method": method,
@@ -39,7 +39,16 @@ def parse_cookie(cookie_string: str) -> dict:
     cookie_dict = {}
 
     for cookie in cookie_string.split(";"):
-        cookie_name, cookie_value = cookie.split("=", 1)
-        cookie_dict[cookie_name] = cookie_value
+        cookie_parts = cookie.strip().split("=", 1)
+
+        if len(cookie_parts) == 2:
+            cookie_name, cookie_value = cookie_parts
+            cookie_dict[cookie_name] = cookie_value
+
+        elif "httponly" in cookie.lower():
+            cookie_dict["httponly"] = True
+
+        elif "secure" in cookie.lower():
+            cookie_dict["secure"] = True
 
     return cookie_dict
